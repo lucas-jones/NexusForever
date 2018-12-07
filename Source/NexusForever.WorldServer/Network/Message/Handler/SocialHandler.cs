@@ -70,20 +70,25 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         [MessageHandler(GameMessageOpcode.ClientWhoRequest)]
         public static void HandleWhoRequest(WorldSession session, ClientWhoRequest request)
         {
-            List<ServerWhoResponse.WhoPlayer> players = new List<ServerWhoResponse.WhoPlayer>
+            List<ServerWhoResponse.WhoPlayer> players = new List<ServerWhoResponse.WhoPlayer>();
+            
+            foreach (WorldSession worldSession in NetworkManager<WorldSession>.GetSessions())
             {
-                new ServerWhoResponse.WhoPlayer
+                if(worldSession.Player != null)
                 {
-                    Name = session.Player.Name,
-                    Level = session.Player.Level,
-                    Race = session.Player.Race,
-                    Class = session.Player.Class,
-                    Path = Path.Scientist,
-                    Faction = Faction.Dominion,
-                    Sex = session.Player.Sex,
-                    Zone = 1417
+                    players.Add(new ServerWhoResponse.WhoPlayer
+                    {
+                        Name = worldSession.Player.Name,
+                        Level = worldSession.Player.Level,
+                        Race = worldSession.Player.Race,
+                        Class = worldSession.Player.Class,
+                        Path = Path.Scientist,
+                        Faction = Faction.Dominion,
+                        Sex = worldSession.Player.Sex,
+                        Zone = 1417
+                    });
                 }
-            };
+            }
 
             session.EnqueueMessageEncrypted(new ServerWhoResponse
             {
